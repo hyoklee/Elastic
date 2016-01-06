@@ -12,12 +12,17 @@
    This module parses an HDF4 content map file and loads the contents of file
    as S3 binary object and produces Elastic-indexable JSON document.
 """
+
+from pyes import *
 import lxml.etree as etree
 import os
 import unittest
 import hashlib
 import json
 from optparse import OptionParser
+
+conn = ES('127.0.0.1:9200')
+# conn.indices.create_index("osdc-8a052845")
 
 class H4MapParser(object):
 
@@ -177,30 +182,6 @@ class H4MapParser(object):
                     item = self.group_stack[-1]
                 datum_node = node.find(self.schema + "datum")
                 arrayData_node = node.find(self.schema + "arrayData")
-
-                if arrayData_node is not None:
-                    for bnode in arrayData_node.getchildren():
-                        if (bnode.tag == (self.schema + "byteStream")):
-                            self.offset = int(bnode.attrib['offset'])
-                            self.nBytes = int(bnode.attrib['nBytes'])
-                            self.file_handler=file(self.file_path+'/'+self.file_name,"rb")            
-                            self.file_handler.seek(self.offset)
-                            buf = self.file_handler.read(self.nBytes)
-                            hash = hashlib.md5()
-                            hash.update(buf)
-                            self.md5 =  hash.hexdigest()
-                            # To-do: Support direct S3 writing.
-                            # You can store data as numpy object, too.
-                            with open(self.md5+'.bin', 'wb') as bfile:
-                                bfile.write(buf)
-
-                        # To-do: Support multiple byteStreamSet.
-                        # elif (bnode.tag == (self.schema + "byteStreamSet")):
-                        #    for b_node in bnode.getchildren():
-                        #        print bnode.attrib['offset']
-                        #        print bnode.attrib['nBytes']                                
-                            
-                            
                 dimsize_node = node.find(self.schema + "dataDimensionSizes")
                 str_shape = ''
                 # print node.attrib["name"]
@@ -209,20 +190,10 @@ class H4MapParser(object):
                     for dim in dim_list:
                         str_shape = str_shape + str(dim) + ','
                     str_shape = str_shape[:-1]
+                    self.dtype = datum_node.attrib["dataType"]
                     prop = self.parse_arrayData(node, str_shape)
-                    prop['type'] = datum_node.attrib["dataType"]
-                    prop['filename'] = self.file_name
-                    # prop['datetime'] = self.datetime
-                    prop['offset'] = self.offset
-                    prop['length'] = self.nBytes
-                    prop['md5'] = self.md5
-
-                    # To-do: Call Elastic API directly later.
-                    with open(self.md5+'.json', 'w') as outfile:
-                        json.dump(prop, outfile)
-                        
                     # Attach dimension to the dataset.
-                    self.parse_dimension(node, dim_list, item)
+                    # self.parse_dimension(node, dim_list, item)
                 last = "variable"
 
             # Dimension
@@ -266,6 +237,50 @@ class H4MapParser(object):
                     str_shape = str_shape + str(dim) + ','
                 str_shape = str_shape[:-1]
                 prop['chunk'] = str_shape
+            for c_node in chunks_node.getchildren():
+                if (c_node.tag == (self.schema + "byteStream")):
+                    self.parse_byteStream(c_node, prop, c_node.attrib['chunkPositionInArray'])
+        else:
+            for bnode in arrayData_node.getchildren():
+                if (bnode.tag == (self.schema + "byteStream")):
+                    self.parse_byteStream(bnode, prop)
+                elif (bnode.tag == (self.schema + "byteStreamSet")):
+                    for b_node in bnode.getchildren():
+                        self.parse_byteStream(b_node, prop)
+
+
+    def parse_byteStream(self, bnode, prop, chunk_p=None):
+        """Parse byteStream tag.
+        """
+        if (bnode.tag == (self.schema + "byteStream")):
+            self.offset = int(bnode.attrib['offset'])
+            self.nBytes = int(bnode.attrib['nBytes'])
+            self.file_handler=file(self.file_path+'/'+self.file_name,"rb")            
+            self.file_handler.seek(self.offset)
+            buf = self.file_handler.read(self.nBytes)
+            hash = hashlib.md5()
+            hash.update(buf)
+            self.md5 =  hash.hexdigest()
+
+            # To-do: Support direct S3 writing.
+            # You can store data as numpy object, too.
+            # with open(self.md5+'.bin', 'wb') as bfile:
+            #    bfile.write(buf)
+
+            # To-do: Call Elastic API directly later with PyES.
+
+            prop['filename'] = self.file_name
+            prop['type'] = self.dtype
+            # prop['datetime'] = self.datetime
+            prop['offset'] = self.offset
+            prop['length'] = self.nBytes
+            prop['md5'] = self.md5
+            if chunk_p:
+                prop['chunk_position'] = chunk_p
+
+            conn.index(prop, 'osdc-8a052845', self.dtype)
+            # with open(self.md5+'.json', 'w') as outfile:
+            #    json.dump(prop, outfile)
 
     def parse_arrayData(self, node, str_shape):
         """Parse dataset creation properties."""
