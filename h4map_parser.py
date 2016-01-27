@@ -241,7 +241,7 @@ class H4MapParser(object):
                 if (c_node.tag == (self.schema + "byteStream")):
                     self.parse_byteStream(c_node, prop, c_node.attrib['chunkPositionInArray'])
         else:
-            for bnode in arrayData_node.getchildren():
+            for bnode in node.getchildren():
                 if (bnode.tag == (self.schema + "byteStream")):
                     self.parse_byteStream(bnode, prop)
                 elif (bnode.tag == (self.schema + "byteStreamSet")):
