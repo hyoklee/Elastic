@@ -2,7 +2,11 @@
 // $range = '60-120';
 $range = '294-297';
 // $range = '298-301';
-$host = "localhost";
+
+// Apache httpd
+// $host = "localhost";
+// Apache tomcat default servlet
+$host = "localhost:8889";
 $socket = fsockopen($host,80);
 // $packet = "GET /index.php HTTP/1.1\r\nHost: $host\r\nRange:bytes=$range\r\nAccept-Encoding: gzip\r\nConnection: close\r\n\r\n";
 // $packet = "GET /MOD14CM1.201401.005.01.hdf HTTP/1.1\r\nHost: $host\r\nRange:bytes=$range\r\nAccept-Encoding: gzip\r\nConnection: close\r\n\r\n";
