@@ -22,10 +22,10 @@ time curl -r '36756687-36756694' http://localhost/MOD08_M3.A2014335.006.20150350
 time curl http://localhost/test.bin -o test2.bin
 
 # Test Tomcat server.
-time curl -r '294-2304294' http://localhost:8889/3B43.070901.6A.HDF -o test.bin
+time curl -r '294-2304293' http://localhost:8889/3B43.070901.6A.HDF -o test.bin
 
 # Test HDF5 file.
 time curl -r '108875990-108877075' http://localhost/oco2_L2StdND_03945a_150330_B6000_150331024816.h5 -o test.bin
 
 # Test Minio server.
-time curl -r '294-2304294' http://localhost:9000/AIRS.2015.12.14.L3.RetStd_IR001.v6.0.31.0.G15349183244.nc.h5 -o test.bin
+time curl -r '294-2304293' http://localhost:9000/airs/AIRS.2015.12.14.L3.RetStd_IR001.v6.0.31.0.G15349183244.nc.h5 -o test.bin
