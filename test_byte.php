@@ -9,6 +9,7 @@ $packet = "GET /oco2_L2StdND_03945a_150330_B6000_150331024816.h5 HTTP/1.1\r\nHos
 fwrite($socket,$packet);
 // Read enough packets for header.
 $data_gz = fread($socket, 2048);
+// print(substr($data_gz, -1086));
 $data = gzuncompress(substr($data_gz, -1086));
 // print($data);
 

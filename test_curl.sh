@@ -23,3 +23,6 @@ time curl http://localhost/test.bin -o test2.bin
 
 # Test Tomcat server.
 time curl -r '294-2304294' http://localhost:8889/3B43.070901.6A.HDF -o test.bin
+
+# Test HDF5 file.
+time curl -r '108875990-108877075' http://localhost/oco2_L2StdND_03945a_150330_B6000_150331024816.h5 -o test.bin
