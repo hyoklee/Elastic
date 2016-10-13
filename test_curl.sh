@@ -29,3 +29,7 @@ time curl -r '108875990-108877075' http://localhost/oco2_L2StdND_03945a_150330_B
 
 # Test Minio server.
 time curl -r '294-2304293' http://localhost:9000/airs/AIRS.2015.12.14.L3.RetStd_IR001.v6.0.31.0.G15349183244.nc.h5 -o test.bin
+
+# Test S3 server.
+time curl -r '294-2304293' https://s3.amazonaws.com/cloudydap/airs/AIRS.2015.12.14.L3.RetStd_IR001.v6.0.31.0.G15349183244.nc.h5 -o test2.bin
+
