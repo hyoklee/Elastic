@@ -33,3 +33,5 @@ time curl -r '294-2304293' http://localhost:9000/airs/AIRS.2015.12.14.L3.RetStd_
 # Test S3 server.
 time curl -r '294-2304293' https://s3.amazonaws.com/cloudydap/airs/AIRS.2015.12.14.L3.RetStd_IR001.v6.0.31.0.G15349183244.nc.h5 -o test2.bin
 
+# Test Minio server for object.
+time curl http://localhost:9000/airsobjs/test.bin -o minio_test.bin
