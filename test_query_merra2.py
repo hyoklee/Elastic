@@ -1,3 +1,5 @@
+#
+#
 from pyes import *
 import urllib2
 import zlib
@@ -18,6 +20,8 @@ def search(query):
 def compute(r):
     url = 'https://s3.amazonaws.com/cloudydap/bytestream/'+r['md5']    
     # print r['filename']
+    # print r._meta.id
+    # return
     # print url
     response = urllib2.urlopen(url)
     buf = response.read()
@@ -32,3 +36,6 @@ def compute(r):
 
 # search("PRECCU AND chunk_position:\[0,0,0\] AND filename:MERRA2_100*")
 search("PRECCU AND chunk_position:\[0,91,288\] AND filename:MERRA2_100*")
+# search("PRECCU AND chunk_position:\[0,0,0\] AND filename:*tavgM_2d_int_*")
+# search("PRECCU AND chunk_position:\[0,91,288\] AND filename: MERRA2_400.tavgM_2d_int_Nx.201507.nc4")
+
